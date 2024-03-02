@@ -291,6 +291,15 @@ namespace MetaData
             }
         }
 
+        // Some users reported different tags being merges as multi-valued tags (see #415): try to make them unique
+        for (auto& [key, values] : _propertyMap)
+        {
+            // delete only adjacent entries, we don't want to lose order
+            auto it{ std::unique(std::begin(values), std::end(values)) };
+            while (it != std::end(values))
+                it = values.erase(it);
+        }
+
         _hasMultiValuedTags = std::any_of(std::cbegin(_propertyMap), std::cend(_propertyMap), [](const auto& entry) { return entry.second.size() > 1; });
     }
 
